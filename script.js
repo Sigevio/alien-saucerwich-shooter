@@ -3,28 +3,40 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
 const collisionCanvas = document.getElementById('collisionCanvas');
 const collisionCtx = collisionCanvas.getContext('2d');
 
-collisionCanvas.width = window.innerWidth;
-collisionCanvas.height = window.innerHeight;
+let aboutToGameOver;
+let gameOver;
 
-let aboutToGameOver = false;
-let gameOver = false;
+let score;
 
-let score = 0;
-ctx.font = '50px Impact';
-
-let timeToNextEnemy = 0;
+let timeToNextEnemy;
+let lastTime;
 let enemyInterval = 500;
-let lastTime = 0;
 
-let enemies = [];
-let explosions = [];
-let particles = [];
+let enemies;
+let explosions;
+let particles;
+
+const initialize = () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  collisionCanvas.width = window.innerWidth;
+  collisionCanvas.height = window.innerHeight;
+
+  aboutToGameOver = false;
+  gameOver = false;
+
+  score = 0;
+  ctx.font = '50px Impact';
+
+  timeToNextEnemy = 0;
+  lastTime = 0;
+
+  enemies = explosions = particles = [];
+}
 
 class Enemy {
   constructor() {
@@ -158,12 +170,57 @@ const drawScore = () => {
 }
 
 const drawGameOver = () => {
-  ctx.textAlign = 'center'
+  // background
+  ctx.beginPath();
+  ctx.rect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+  ctx.fill();
+  ctx.closePath();
+  // text
+  ctx.textAlign = 'center';
+  ctx.font = '60pt Impact';
   ctx.fillStyle = 'black';
-  ctx.fillText('GAME OVER, your score is ' + score, canvas.width * 0.5, canvas.height * 0.5);
+  ctx.fillText('GAME OVER', canvas.width * 0.5, canvas.height * 0.2);
   ctx.fillStyle = 'white';
-  ctx.fillText('GAME OVER, your score is ' + score, canvas.width * 0.5 + 5, canvas.height * 0.5 + 5);
+  ctx.fillText('GAME OVER', canvas.width * 0.5 + 5, canvas.height * 0.2 + 5);
+  // score
+  ctx.font = '50pt Impact';
+  ctx.fillStyle = 'black';
+  ctx.fillText('Score: ' + score, canvas.width * 0.5, canvas.height * 0.4);
+  ctx.fillStyle = 'white';
+  ctx.fillText('Score: ' + score, canvas.width * 0.5 + 5, canvas.height * 0.4 + 5);
+  // button
+  ctx.beginPath();
+  ctx.rect(canvas.width * 0.5 - 100, canvas.height * 0.75, 200, 100); 
+  ctx.fillStyle = 'rgba(225, 225, 225, 0.75)';
+  ctx.fill(); 
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = 'black';
+  ctx.stroke();
+  ctx.closePath();
+  ctx.font = '40pt Impact';
+  ctx.fillStyle = 'black';
+  ctx.fillText('Retry', canvas.width * 0.5, canvas.height * 0.83);
 }
+
+canvas.addEventListener('click', e => {
+  if (gameOver) {
+    let mouseX = e.clientX;
+    let mouseY = e.clientY;
+    let rectX = canvas.width * 0.5 - 100;
+    let rectY = canvas.height * 0.75;
+    let rectWidth = 200;
+    let rectHeight = 100;
+
+    if (mouseX > rectX &&
+        mouseX < rectX + rectWidth &&
+        mouseY < rectY + rectHeight &&
+        mouseY > rectY) {
+      initialize();
+      animate(0);
+    }
+  }
+});
 
 window.addEventListener('click', e => {
   const detectPixelColor = collisionCtx.getImageData(e.x, e.y, 1, 1);
@@ -176,7 +233,7 @@ window.addEventListener('click', e => {
       score++;
       explosions.push(new Explosion(e.x, e.y, enemy.width));
     }
-  })
+  });
 });
 
 const animate = timestamp => {
@@ -213,4 +270,6 @@ const animate = timestamp => {
     drawGameOver();
   }
 }
+
+initialize();
 animate(0);
