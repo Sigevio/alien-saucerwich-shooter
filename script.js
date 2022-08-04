@@ -19,7 +19,7 @@ let enemies;
 let explosions;
 let particles;
 
-const initialize = () => {
+const resetState = () => {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
@@ -170,7 +170,7 @@ const drawScore = () => {
 }
 
 const drawGameOver = () => {
-  // background
+  // background overlay
   ctx.beginPath();
   ctx.rect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
@@ -216,7 +216,7 @@ canvas.addEventListener('click', e => {
         mouseX < rectX + rectWidth &&
         mouseY < rectY + rectHeight &&
         mouseY > rectY) {
-      initialize();
+      resetState();
       animate(0);
     }
   }
@@ -271,5 +271,5 @@ const animate = timestamp => {
   }
 }
 
-initialize();
+resetState();
 animate(0);
